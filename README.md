@@ -1,24 +1,27 @@
 # docker-spark
 
-This container starts a spark worker container and connects to a container named spark-master on port 7077. It needs to be parameterized, but the basics are there.
+NOTE: This container does not currently do anything. It simply installs the components for Java, Spark, Scala, and Python, then uses supervisord to keep the container up. In the future the intent is to install a Cassandra driver, then start a Spark Streaming job.
 
 ## Installation
 
 Build from Dockerfile
 
 ```
-SRC_DIR=docker-spark-worker
-git clone ssh://git@stash.psgnetworks.net:7999/dt/docker-spark-worker.git $SRC_DIR
-cd $SRC_DIR
-docker build -t spark-worker:2.1.0 .
+docker build -t spark:2.1.0 .
 ```
 
 ## Run
 
+**Start a spark master**
 ```
-docker run -d --name spark-worker -h spark-worker --link spark-master -p 18081:8081 spark-worker:2.1.0
+docker run -d --name spark-master -h spark-master -p 18080:8080 -p 7077:7077 spark:2.1.0 master
+```
+
+**Start a spark worker**
+```
+docker run -d --name spark-worker1 -h spark-worker1 --link spark-master -p 18081:8081 spark:2.1.0 worker spark://spark-master:7077
 ```
 
 ## Browse
 
-The web interface can now be accessed at http://localhost:18081.
+The web interfaces can now be accessed at http://localhost:18080 (master) and http://localhost:18081 (worker).
